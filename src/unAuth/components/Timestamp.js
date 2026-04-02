@@ -22,6 +22,25 @@ function Timestamp({ onOpenLogin, onOpenSignup }) {
   const [historyError, setHistoryError] = useState('');
   const [requestError, setRequestError] = useState('');
 
+  const getRequestErrorMessage = (error) => {
+    const code = error?.code || '';
+    const message = error?.message || '';
+
+    if (code === 'functions/internal' || message.toLowerCase() === 'internal') {
+      return 'The timestamp service is currently unavailable. If this persists after redeploying the Cloud Function, check the function logs for backend errors.';
+    }
+
+    if (code === 'functions/deadline-exceeded') {
+      return 'Timestamp generation timed out. Please try again with a shorter video or retry in a moment.';
+    }
+
+    if (code === 'functions/invalid-argument') {
+      return 'The backend rejected this YouTube URL. Please verify the link and try again.';
+    }
+
+    return message || 'Error generating timestamps. Please try again.';
+  };
+
   // Track authentication state
   useEffect(() => {
     if (!auth) {
@@ -153,7 +172,7 @@ function Timestamp({ onOpenLogin, onOpenSignup }) {
         setRequestError(message);
       }
     } catch (err) {
-      const message = err?.message || 'Error generating timestamps. Please try again.';
+      const message = getRequestErrorMessage(err);
       console.error('Error generating timestamps:', err);
       setRequestError(message);
     } finally {

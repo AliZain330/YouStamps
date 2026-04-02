@@ -32,6 +32,10 @@ const firebaseConfig = {
 // Validate required Firebase config values
 let app, auth, db, functions, appCheck;
 const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId;
+const appCheckSiteKey = process.env.REACT_APP_RECAPTCHA_SITE_KEY?.trim();
+const appCheckEnabled = process.env.REACT_APP_ENABLE_APP_CHECK === 'true';
+const isProduction = process.env.NODE_ENV === 'production';
+const isLocalhost = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 if (!isFirebaseConfigured) {
   const missingVars = [];
@@ -60,14 +64,22 @@ if (!isFirebaseConfigured) {
     db = getFirestore(app);
     functions = getFunctions(app);
 
-    // Initialize App Check (requires reCAPTCHA v3 site key)
-    if (process.env.REACT_APP_RECAPTCHA_SITE_KEY) {
+    // Only enable App Check when it has been explicitly turned on and configured.
+    if (appCheckEnabled && appCheckSiteKey && isProduction) {
       appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(process.env.REACT_APP_RECAPTCHA_SITE_KEY),
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
         isTokenAutoRefreshedEnabled: true
       });
     } else {
-      console.warn('⚠️ App Check not initialized: Missing REACT_APP_RECAPTCHA_SITE_KEY');
+      if (appCheckEnabled && !appCheckSiteKey) {
+        console.warn('⚠️ App Check not initialized: Missing REACT_APP_RECAPTCHA_SITE_KEY');
+      } else if (appCheckEnabled && !isProduction) {
+        console.warn('⚠️ App Check skipped outside production mode.');
+      } else if (appCheckEnabled && isLocalhost) {
+        console.warn('⚠️ App Check skipped on localhost.');
+      } else {
+        console.log('ℹ️ App Check disabled. Set REACT_APP_ENABLE_APP_CHECK=true after configuring a valid reCAPTCHA site key in Firebase.');
+      }
       appCheck = null;
     }
   } catch (error) {

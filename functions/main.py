@@ -2,7 +2,7 @@
 # To get started, simply uncomment the below code or create your own.
 # Deploy with `firebase deploy`
 
-from firebase_functions import https_fn  # type: ignore
+from firebase_functions import https_fn, options  # type: ignore
 from firebase_functions.options import set_global_options  # type: ignore
 from firebase_admin import initialize_app  # type: ignore
 import httpx  # type: ignore
@@ -18,7 +18,12 @@ set_global_options(max_instances=10)
 initialize_app()
 
 
-@https_fn.on_call()
+@https_fn.on_call(
+    cors=options.CorsOptions(
+        cors_origins="*",
+        cors_methods=["post", "options"],
+    )
+)
 def get_timestamps(req: https_fn.CallableRequest) -> dict:
     """
     HTTP callable function that generates chapter markers/timestamps for YouTube videos

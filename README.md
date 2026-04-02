@@ -88,6 +88,7 @@ The frontend uses noembed and YouTube oEmbed APIs to fetch video previews, displ
    REACT_APP_APP_ID=your_app_id
    REACT_APP_MEASUREMENT_ID=your_measurement_id
    REACT_APP_RECAPTCHA_SITE_KEY=your_recaptcha_key
+   REACT_APP_ENABLE_APP_CHECK=false
    REACT_APP_USE_EMULATOR=false
    ```
 
@@ -186,6 +187,7 @@ my-react-app/
 | `REACT_APP_APP_ID` | Firebase app ID |
 | `REACT_APP_MEASUREMENT_ID` | Google Analytics measurement ID |
 | `REACT_APP_RECAPTCHA_SITE_KEY` | reCAPTCHA v3 site key for App Check |
+| `REACT_APP_ENABLE_APP_CHECK` | Set to `true` only after App Check is correctly configured |
 | `REACT_APP_USE_EMULATOR` | Set to `true` to use Firebase emulators |
 | `BUMPUPS_API_KEY` | API key for Bumpups timestamp service (Cloud Functions secret) |
 
